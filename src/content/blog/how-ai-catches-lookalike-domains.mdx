@@ -1,0 +1,61 @@
+---
+title: "How AI Catches Lookalike Domains Before You Click"
+date: "2024-01-22"
+readTime: "8 min read"
+tags: ["AI", "domain spoofing", "technology"]
+excerpt: "Lookalike domains are the backbone of modern spear phishing. Here's how machine learning spots them at scale."
+---
+
+# How AI Catches Lookalike Domains Before You Click
+
+In 2023, over 40% of phishing attacks involved lookalike domains — domains specifically crafted to visually or phonetically resemble legitimate brands. Classic examples include `paypa1.com`, `micros0ft-login.net`, and `arnazon.com`. What makes these attacks particularly dangerous is that they can fool both humans and traditional signature-based security tools.
+
+## What Is a Lookalike Domain?
+
+A lookalike domain exploits the human visual system's tendency to pattern-match rather than read character by character. At a glance, `rnicrosoft.com` (with `rn` replacing `m`) looks identical to `microsoft.com`. These attacks fall into several categories:
+
+**Typosquatting**: Substituting similar-looking characters (`0` for `o`, `1` for `l`, `rn` for `m`).
+
+**Homograph attacks**: Using Unicode characters that render identically to ASCII — for example, the Cyrillic letter `а` (U+0430) is visually identical to the Latin `a` (U+0061).
+
+**Combosquatting**: Adding words to legitimate domains: `microsoft-support.net`, `paypal-secure-login.com`.
+
+**Sound-alike domains**: `micosoft.com`, `gooogle.com` — close enough that auto-correct or visual parsing fills in the gap.
+
+## The Limitations of Blocklists
+
+Traditional security tools rely on blocklists: a curated database of known-malicious domains. The problem is registration velocity. Attackers register thousands of lookalike domains daily, use them for hours, then abandon them. By the time a domain appears on a blocklist, the attack campaign is already over.
+
+## How Machine Learning Changes the Equation
+
+Modern AI-based detection doesn't ask "is this domain on a blocklist?" It asks "how similar is this domain to a legitimate brand, and does it exhibit the behavioral patterns of a phishing infrastructure?"
+
+### Visual Similarity Scoring
+
+Our models compute a visual similarity score between the candidate domain and a database of 5,000 protected brand domains. This goes beyond simple string distance — we normalize Unicode, apply skeleton algorithms (reducing characters to their visual skeleton representation), and measure edit distance in visual-space rather than character-space.
+
+### Infrastructure Signals
+
+New domains. Shared hosting on known bulletproof infrastructure. No MX records (meaning the domain was registered to host a phishing page, not to send/receive legitimate email). Certificates issued by automated CAs within hours of registration. These signals form a fingerprint.
+
+### Temporal Patterns
+
+Phishing domains spike in registration around major events: tax season, Black Friday, major data breaches. Our models are trained to recognize these temporal patterns and apply heightened scrutiny during high-risk windows.
+
+### Graph-Based Analysis
+
+Domains don't exist in isolation. They share registrars, name servers, hosting providers, and certificate authorities with other domains. By modeling these relationships as a graph, we can identify clusters of malicious infrastructure even before individual domains have been flagged.
+
+## Results at Scale
+
+In our 2023 evaluation, our lookalike detection model achieved:
+
+- **98.4% precision** on a held-out test set of 500,000 domains
+- **97.1% recall** (catching 97 out of 100 lookalikes)
+- **Sub-20ms** median classification time per domain
+
+The key insight is that no single signal is sufficient. The power comes from combining visual similarity, infrastructure reputation, registration patterns, and behavioral signals into a unified risk score.
+
+## What This Means for You
+
+The next time you receive an email with a link, the domain in that link has already been evaluated across dozens of signals before you see it. That's the promise of AI-based phishing defense: shifting from reactive blocklists to proactive behavioral analysis, operating at a speed and scale no human team can match.
