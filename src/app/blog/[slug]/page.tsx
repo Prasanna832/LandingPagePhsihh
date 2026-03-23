@@ -39,12 +39,13 @@ export async function generateStaticParams() {
 }
 
 interface Props {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-    const filePath = path.join(contentDir, `${params.slug}.mdx`)
+    const { slug } = await params
+    const filePath = path.join(contentDir, `${slug}.mdx`)
     const raw = fs.readFileSync(filePath, 'utf-8')
     const { data } = matter(raw)
     return { title: data.title as string, description: data.excerpt as string }
@@ -53,12 +54,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default function BlogPostPage({ params }: Props) {
+export default async function BlogPostPage({ params }: Props) {
+  const { slug } = await params
   let frontmatter: Record<string, unknown> = {}
   let htmlContent = ''
 
   try {
-    const filePath = path.join(contentDir, `${params.slug}.mdx`)
+    const filePath = path.join(contentDir, `${slug}.mdx`)
     const raw = fs.readFileSync(filePath, 'utf-8')
     const { data, content } = matter(raw)
     frontmatter = data
@@ -67,7 +69,7 @@ export default function BlogPostPage({ params }: Props) {
     notFound()
   }
 
-  const related = BLOG_POSTS.filter((p) => p.slug !== params.slug).slice(0, 2)
+  const related = BLOG_POSTS.filter((p) => p.slug !== slug).slice(0, 2)
 
   return (
     <div className="min-h-screen pt-28 pb-24">
