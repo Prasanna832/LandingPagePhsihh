@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BrowserRouter, Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 const channels = ['alerts', 'incidents', 'actions', 'audit']
+const MotionForm = motion.form
+const MotionDiv = motion.div
 
 const glass = 'rounded-2xl border border-cyan-400/30 bg-slate-900/55 backdrop-blur-xl shadow-[0_0_25px_rgba(6,182,212,0.25)]'
 const sevColor = { Low: '#22c55e', Medium: '#f59e0b', High: '#f97316', Critical: '#ef4444' }
@@ -29,7 +31,6 @@ async function api(path, token, options = {}) {
 function TypingText({ text }) {
   const [out, setOut] = useState('')
   useEffect(() => {
-    setOut('')
     let i = 0
     const t = setInterval(() => {
       i += 1
@@ -41,7 +42,7 @@ function TypingText({ text }) {
   return <p className="text-cyan-100/90 text-sm leading-relaxed">{out}</p>
 }
 
-function Shell({ token, role, onLogout, children, realtime }) {
+function Shell({ role, onLogout, children, realtime }) {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 overflow-x-hidden">
       <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_20%_30%,rgba(14,165,233,0.3),transparent_35%),radial-gradient(circle_at_80%_20%,rgba(168,85,247,0.35),transparent_35%),radial-gradient(circle_at_50%_90%,rgba(34,197,94,0.22),transparent_40%)] animate-pulse" />
@@ -90,7 +91,7 @@ function LoginPage({ setAuth }) {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 p-6">
-      <motion.form initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} onSubmit={submit} className={`${glass} w-full max-w-md p-6`}>
+      <MotionForm initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} onSubmit={submit} className={`${glass} w-full max-w-md p-6`}>
         <h1 className="mb-5 text-2xl font-semibold text-cyan-300">{isSignup ? 'Create SOC Account' : 'SOC Secure Login'}</h1>
         <div className="space-y-3">
           <input className="w-full rounded-lg border border-cyan-400/30 bg-slate-900/70 p-2" placeholder="Username" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} required />
@@ -107,7 +108,7 @@ function LoginPage({ setAuth }) {
         <button type="button" className="mt-3 text-sm text-cyan-300/90" onClick={() => setIsSignup((v) => !v)}>
           {isSignup ? 'Already have an account? Login' : 'Need an account? Signup'}
         </button>
-      </motion.form>
+      </MotionForm>
     </div>
   )
 }
@@ -121,19 +122,19 @@ function Dashboard({ alerts, ingestRandom, loading }) {
 
   return (
     <div className="grid gap-4 md:grid-cols-3">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={`${glass} p-4 md:col-span-2`}>
+      <MotionDiv initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={`${glass} p-4 md:col-span-2`}>
         <div className="mb-3 flex items-center justify-between"><h2 className="text-cyan-300">Real-Time Alerts</h2><button onClick={ingestRandom} className="rounded-md bg-violet-500/70 px-3 py-1 text-xs">Ingest Sample Alert</button></div>
         {loading ? <div className="h-48 animate-pulse rounded-lg bg-slate-800/70" /> : (
           <div className="max-h-96 space-y-2 overflow-auto pr-1">
             {alerts.map((a) => (
-              <motion.div key={a.id} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="rounded-lg border border-slate-700 bg-slate-900/70 p-3">
+              <MotionDiv key={a.id} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="rounded-lg border border-slate-700 bg-slate-900/70 p-3">
                 <div className="flex items-center justify-between"><span>{a.category}</span><span style={{ color: sevColor[a.severity] }}>{a.severity}</span></div>
                 <p className="text-xs text-slate-300/80">Source: {a.source}</p>
-              </motion.div>
+              </MotionDiv>
             ))}
           </div>
         )}
-      </motion.div>
+      </MotionDiv>
 
       <div className={`${glass} p-4`}>
         <h2 className="mb-3 text-cyan-300">Severity Chart</h2>
@@ -243,7 +244,7 @@ function SocApp() {
     navigate('/')
   }
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!token) return
     setLoading(true)
     try {
@@ -260,7 +261,7 @@ function SocApp() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [token])
 
   const ingestRandom = async () => {
     const random = sampleAlerts[Math.floor(Math.random() * sampleAlerts.length)]
@@ -275,7 +276,7 @@ function SocApp() {
 
   useEffect(() => {
     loadData()
-  }, [token])
+  }, [loadData])
 
   useEffect(() => {
     if (!token) return
@@ -289,14 +290,14 @@ function SocApp() {
       return ws
     })
     return () => sockets.forEach((s) => s.close())
-  }, [token])
+  }, [token, loadData])
 
   if (!token) {
     return <Routes><Route path="*" element={<LoginPage setAuth={setAuth} />} /></Routes>
   }
 
   return (
-    <Shell token={token} role={role} onLogout={onLogout} realtime={realtime}>
+    <Shell role={role} onLogout={onLogout} realtime={realtime}>
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard alerts={alerts} ingestRandom={ingestRandom} loading={loading} />} />
