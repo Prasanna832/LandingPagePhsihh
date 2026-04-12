@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+from uuid import uuid4
 
 from main import app
 
@@ -15,7 +16,8 @@ def auth_headers(username: str, password: str, role: str = "Admin"):
 
 
 def test_full_pipeline_ingest_to_audit():
-    headers = auth_headers("admin1", "StrongPass123", "Admin")
+    username = f"admin-{uuid4().hex[:8]}"
+    headers = auth_headers(username, "StrongPass123", "Admin")
 
     payload = {
         "source": "MockSIEM",

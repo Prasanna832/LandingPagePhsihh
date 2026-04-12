@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from services.threat_intel import lookup_indicator
 
@@ -7,7 +7,7 @@ class InvestigationAgent:
     name = "InvestigationAgent"
 
     async def run(self, normalized_alert: dict, triage: dict) -> dict:
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         timeline = [
             {"time": (now - timedelta(minutes=5)).isoformat(), "event": "Initial suspicious event observed"},
             {"time": (now - timedelta(minutes=3)).isoformat(), "event": "Correlated endpoint telemetry"},
