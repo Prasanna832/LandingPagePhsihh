@@ -1,0 +1,8 @@
+from typing import Generator
+from sqlalchemy.orm import Session
+
+from database import get_db
+
+
+def db_dependency() -> Generator[Session, None, None]:
+    yield from get_db()

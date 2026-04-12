@@ -1,0 +1,18 @@
+[
+  {
+    "source": "MockSIEM",
+    "event_type": "failed_login",
+    "message": "Many failed login attempts from suspicious host",
+    "ip": "185.220.101.1",
+    "user": "jdoe",
+    "metadata": {"attempts": 17}
+  },
+  {
+    "source": "MockSIEM",
+    "event_type": "data_exfiltration",
+    "message": "Unusual outbound transfer detected to unknown destination",
+    "ip": "45.83.64.2",
+    "user": "svc-backup",
+    "metadata": {"bytes": 88221122}
+  }
+]
