@@ -1,0 +1,7 @@
+backend/.venv/
+backend/.pytest_cache/
+backend/agentic_soc.db
+backend/**/*.db
+backend/__pycache__/
+**/__pycache__/
+*.pyc
